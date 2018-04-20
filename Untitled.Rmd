@@ -1,0 +1,68 @@
+---
+title: "Damageability Analysis"
+author: "Think Big Analytics, a teradata company"
+date: "2018/3/31"
+output: 
+   ioslides_presentation:
+      widescreen: true
+      smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# 前準備
+## ライブラリの読み込み
+
+```{r}
+library(tidyverse, warn.conflicts = F)
+library(ggplot2)
+library(caret)
+```
+## 分析対象の決定:データの読み込み
+
+```{r, echo = TRUE}
+work_dir    <- "/Users/nakahashi/Desktop/OneDrive - Teradata/Project/01_Finance/TMNF/02_Work/Modeling/"
+file_name   <- "20180307_GLM_BASE_DATA.csv"
+dat_ori     <- read_csv(paste0(work_dir, file_name))
+```
+
+## 分析対象の決定:BO分類ごとのレコード数{.flexbox .vcenter}
+
+```{r, echo = TRUE}
+dat_ori %>% 
+   select(`BO名称(大分類)`, 発生保険金) %>% 
+   group_by(`BO名称(大分類)`) %>% 
+   summarise_at(vars(発生保険金), funs(n(), mean, sum, max, min))
+```
+
+
+## 分析対象の決定:BO分類ごとのレコード数{.flexbox .vcenter}
+```{r}
+ggplot(dat_ori, aes(x = `BO名称(大分類)`, y  = 発生保険金)) +
+   geom_violin(aes(color = `BO名称(大分類)`)) +
+   theme_classic(base_family = "HiraKakuProN-W3") +
+   theme(legend.position = "none") +
+   NULL
+```
+
+## 分析対象の決定:BO分類ごとのレコード数{.flexbox .vcenter}
+```{r}
+ggplot(dat_ori, aes(x  = 発生保険金, fill = `BO名称(大分類)`, color = `BO名称(大分類)`)) +
+   geom_histogram(alpha = 0.2, position = "identity") +
+   theme_classic(base_family = "HiraKakuProN-W3") +
+   NULL
+```
+
+## 分析対象の決定:BO分類ごとのレコード数{.flexbox .vcenter}
+```{r}
+ggplot(dat_ori %>% filter(`BO名称(大分類)` %in% c("休業", "通院")), 
+       aes(x  = 発生保険金, fill = `BO名称(大分類)`, color = `BO名称(大分類)`)) +
+   geom_histogram(alpha = 0.2, position = "identity") +
+   facet_wrap(~ `BO名称(大分類)`, nrow = 2) +
+   theme_classic(base_family = "HiraKakuProN-W3") +
+   theme(legend.position = "none") +
+   NULL
+```
+
